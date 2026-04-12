@@ -1,0 +1,9 @@
+streamlit
+langchain
+langchain-community
+langchain-core
+langchain-huggingface
+faiss-cpu
+rank_bm25
+ollama
+pypdf
