@@ -5,5 +5,8 @@ langchain-core
 langchain-huggingface
 faiss-cpu
 rank_bm25
-ollama
+google-generativeai
+openai
 pypdf
+python-dotenv
+reportlab

@@ -3,15 +3,18 @@ from langchain_community.document_loaders import PyPDFLoader # type: ignore
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter # type: ignore
 
-def process_pdfs(data_path="data/"):
+def process_pdfs(data_path="data/", selected_files=None):
     """Loads PDFs from a folder and splits them into chunks."""
     all_docs = []
     
-    # 1. Load all PDFs from the directory
-    for file in os.listdir(data_path):
+    # 1. Load selected or all PDFs from the directory
+    files = selected_files if selected_files is not None else os.listdir(data_path)
+    for file in files:
         if file.endswith(".pdf"):
-            loader = PyPDFLoader(os.path.join(data_path, file))
-            all_docs.extend(loader.load())
+            file_path = os.path.join(data_path, file)
+            if os.path.exists(file_path):
+                loader = PyPDFLoader(file_path)
+                all_docs.extend(loader.load())
     
     # 2. Split into chunks
     # We use RecursiveCharacterTextSplitter because it's smarter with structure
@@ -22,7 +25,7 @@ def process_pdfs(data_path="data/"):
     )
     
     chunks = text_splitter.split_documents(all_docs)
-    print(f"✅ Processed {len(all_docs)} pages into {len(chunks)} chunks.")
+    print(f"Processed {len(all_docs)} pages into {len(chunks)} chunks.")
     return chunks
 
 if __name__ == "__main__":
