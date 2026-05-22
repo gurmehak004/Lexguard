@@ -63,3 +63,34 @@ graph TD
 - **Summarizer**: Dynamically summaries documents clause-by-clause, breaking down legalese into plain English summary, active obligations, and critical risk flags.
 - **Compare**: Pastes two legal provisions side-by-side. The model computes a semantic difference, determines the transition risk level (High/Medium/Low), and creates a checklist of compliance actions.
 - **Checklist**: Parses a selected document to extract all actionable legal requirements and compiles them into an interactive checklist with priority ratings and exportable CSV formats.
+
+---
+
+## 🔗 File Connectivity & Project Structure
+
+The project is structured modularly to separate concerns between the user interface, document ingestion, retrieval search, and AI orchestration.
+
+```
+researchgpt/
+├── app.py                      # Main Streamlit Frontend, UI layout, & State management
+├── requirements.txt            # System dependencies
+├── TECH_STACK_AND_LOGIC.md     # Technology stack & architectural logic
+├── engine/
+│   ├── processor.py            # PDF text extraction & character chunking logic
+│   ├── retrievers.py           # Gemini Embeddings, FAISS Vector Index, & BM25 Keyword Index
+│   └── llm_handler.py          # Gemini LLM wrappers & task-specific prompt engineering
+├── data/                       # Ingestion directory (holds the 20 test PDF papers)
+└── scratch/
+    └── generate_test_data.py   # Seeding script to compile the 20 legal/compliance PDFs
+```
+
+### File Relationships:
+1. **`app.py` ➡️ `engine/processor.py`**:
+   - `app.py` scans the `data/` directory and calls `process_pdfs()` in `processor.py` to extract text from any found PDFs and split them into overlapping character chunks.
+2. **`app.py` ➡️ `engine/retrievers.py`**:
+   - `app.py` receives the split chunks and calls `get_hybrid_retriever()` in `retrievers.py` to create the joint FAISS vector index (semantic) and BM25 index (keyword).
+3. **`app.py` ➡️ `engine/llm_handler.py`**:
+   - For queries and tab workflows, `app.py` passes the user input and retriever context to the functions in `llm_handler.py` (`get_llm_response()`, `generate_section_summary()`, `compare_provisions()`, and `generate_compliance_checklist()`).
+4. **`engine/llm_handler.py` ➡️ `engine/llm_handler.py::call_llm()`**:
+   - All workflow functions in `llm_handler.py` route through `call_llm()`, which authenticates using the environment variable and fires structured generation calls to `gemini-2.5-flash`.
+
